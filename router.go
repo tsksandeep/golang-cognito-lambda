@@ -42,6 +42,11 @@ func router(ctx context.Context, request events.APIGatewayProxyRequest) events.A
 
 	default:
 		return events.APIGatewayProxyResponse{
+			Headers: map[string]string{
+				"Access-Control-Allow-Headers": "Content-Type",
+				"Access-Control-Allow-Origin":  "*",
+				"Access-Control-Allow-Methods": "'POST,OPTIONS'",
+			},
 			StatusCode: http.StatusBadRequest,
 			Body:       "Invalid method and path: " + methodAndPathString,
 		}

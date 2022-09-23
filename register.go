@@ -16,6 +16,8 @@ type UserRegister struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	PhoneNumber string `json:"phoneNumber"`
+	Profile     string `json:"profile"`
+	CreatedBy   string `json:"createdBy"`
 }
 
 func Register(ctx context.Context, request events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
@@ -52,6 +54,10 @@ func Register(ctx context.Context, request events.APIGatewayProxyRequest) events
 				Name:  aws.String("email"),
 				Value: aws.String(userRegister.Email),
 			},
+			{
+				Name:  aws.String("profile"),
+				Value: aws.String(userRegister.Profile),
+			},
 		},
 	}
 
@@ -63,6 +69,20 @@ func Register(ctx context.Context, request events.APIGatewayProxyRequest) events
 		case cognito.ErrCodeUsernameExistsException:
 			return writeGatewayProxyResponse("User already exists", ErrBadRequest)
 		default:
+			return writeGatewayProxyResponse("", ErrInternalServerError)
+		}
+	}
+
+	if userRegister.CreatedBy == SuperAdmin {
+		log.Info("User created by super admin. auto confirming...")
+
+		_, err = cognitoClient.AdminConfirmSignUp(&cognito.AdminConfirmSignUpInput{
+			UserPoolId: aws.String(userPoolID),
+			Username:   res.UserSub,
+		})
+
+		if err != nil {
+			log.Error("User register confirm user: ", err)
 			return writeGatewayProxyResponse("", ErrInternalServerError)
 		}
 	}

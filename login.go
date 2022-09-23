@@ -63,6 +63,8 @@ func Login(ctx context.Context, request events.APIGatewayProxyRequest) events.AP
 			return writeGatewayProxyResponse("Incorrect username/password or refreshToken", ErrUnauthorized)
 		case cognito.ErrCodeUserNotFoundException:
 			return writeGatewayProxyResponse("User not found", ErrBadRequest)
+		case cognito.ErrCodeUserNotConfirmedException:
+			return writeGatewayProxyResponse("User not confirmed", ErrUnauthorized)
 		default:
 			return writeGatewayProxyResponse("", ErrInternalServerError)
 		}
@@ -79,7 +81,7 @@ func Login(ctx context.Context, request events.APIGatewayProxyRequest) events.AP
 	}
 
 	loginResponse := LoginResponse{
-		UserId:           *userOutput.Username,
+		UserId:             *userOutput.Username,
 		AuthenticationInfo: authOutput,
 	}
 

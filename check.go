@@ -17,15 +17,12 @@ func isMethodAllowed(method string) bool {
 	return ok
 }
 
-func checkRequest(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
+func checkRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	if !isMethodAllowed(request.HTTPMethod) {
-		return &events.APIGatewayProxyResponse{
-			StatusCode: http.StatusMethodNotAllowed,
-			Body:       "Method not allowed",
-		}, errors.New("request method not allowed")
+		return events.APIGatewayProxyResponse{StatusCode: http.StatusMethodNotAllowed}, errors.New("request method not allowed")
 	}
 
-	return nil, nil
+	return events.APIGatewayProxyResponse{}, nil
 }
 
 func checkRegister(userRegister UserRegister) error {

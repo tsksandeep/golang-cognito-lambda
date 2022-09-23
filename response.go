@@ -16,22 +16,18 @@ func writeGatewayProxyResponse(body string, err error) events.APIGatewayProxyRes
 		Headers: map[string]string{
 			"Access-Control-Allow-Headers": "Content-Type",
 			"Access-Control-Allow-Origin":  "*",
-			"Access-Control-Allow-Methods": "'POST, GET'",
+			"Access-Control-Allow-Methods": "'POST,OPTIONS'",
 		},
 	}
 	if err != nil {
+		respByte, _ := json.Marshal(&DefaultRespBody{Message: body})
+
 		res.StatusCode = GetCodeFromError(err)
-
-		if body != "" {
-			respByte, _ := json.Marshal(&DefaultRespBody{Message: body})
-			res.Body = string(respByte)
-		}
-
+		res.Body = string(respByte)
 		return res
 	}
 
 	res.StatusCode = http.StatusOK
 	res.Body = body
-
 	return res
 }

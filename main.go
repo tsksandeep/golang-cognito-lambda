@@ -12,6 +12,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	SuperAdmin   string = "SUPER_ADMIN"
+	StudentAdmin string = "STUDENT_ADMIN"
+)
+
 var (
 	cognitoClient *cognito.CognitoIdentityProvider
 
@@ -37,10 +42,11 @@ func init() {
 }
 
 func handler(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	checkResponse, err := checkRequest(request)
+	resp, err := checkRequest(request)
 	if err != nil {
 		log.Error(err)
-		return *checkResponse, nil
+		resp.Body = err.Error()
+		return resp, nil
 	}
 
 	return router(ctx, request), nil
